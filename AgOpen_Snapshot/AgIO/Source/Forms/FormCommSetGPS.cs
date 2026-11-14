@@ -112,7 +112,7 @@ namespace AgIO
 
             lblCurrentIMU.Text = mf.spIMU.PortName;
 
-            if (mf.spSteerModule.IsOpen)
+            if (mf.IsSteerPortOpen())
             {
                 cboxSteerModulePort.Enabled = false;
                 btnCloseSerialSteerModule.Enabled = true;
@@ -125,8 +125,8 @@ namespace AgIO
                 btnOpenSerialSteerModule.Enabled = true;
             }
 
-            //check if AutoSteer port is open or closed and set buttons accordingly
-            if (mf.spMachineModule.IsOpen)
+            //check if Machine port is open or closed and set buttons accordingly
+            if (mf.IsMachinePortOpen())
             {
                 cboxMachineModulePort.Enabled = false;
                 btnCloseSerialMachineModule.Enabled = true;
@@ -163,9 +163,11 @@ namespace AgIO
                 //cboxModule3Port.Items.Add(s);
             }
 
-            lblCurrentSteerModulePort.Text = mf.spSteerModule.PortName;
-            lblCurrentMachineModulePort.Text = mf.spMachineModule.PortName;
+            lblCurrentSteerModulePort.Text = mf.GetSteerPortName();
+            lblCurrentMachineModulePort.Text = mf.GetMachinePortName();
             //lblCurrentModule3Port.Text = mf.spModule3.PortName;
+
+            ApplyImuSteerPortModeUi();
         }
 
         private void groupBox1_Paint(object sender, PaintEventArgs e)
@@ -365,7 +367,7 @@ namespace AgIO
             //GPS phrase
             textBoxRcv.Text = mf.recvGPSSentence;
             textBoxRcv2.Text = mf.recvGPS2Sentence;
-            lblSteer.Text = mf.spSteerModule.PortName;
+            lblSteer.Text = mf.GetSteerPortName();
             lblGPS.Text = mf.spGPS.PortName;
             lblIMU.Text = mf.spIMU.PortName;
             lblMachine.Text = mf.spMachineModule.PortName;
@@ -416,6 +418,8 @@ namespace AgIO
                 btnCloseIMU.Enabled = false;
                 btnOpenIMU.Enabled = true;
             }
+
+            ApplyImuSteerPortModeUi();
         }
 
         private void btnCloseIMU_Click(object sender, EventArgs e)
@@ -433,6 +437,8 @@ namespace AgIO
                 btnCloseIMU.Enabled = false;
                 btnOpenIMU.Enabled = true;
             }
+
+            ApplyImuSteerPortModeUi();
         }
 
         private void cboxIMU_SelectedIndexChanged(object sender, EventArgs e)
@@ -440,17 +446,24 @@ namespace AgIO
             mf.spIMU.PortName = cboxIMU.Text;
             FormLoop.portNameIMU = cboxIMU.Text;
             lblCurrentIMU.Text = cboxIMU.Text;
+
+            if (mf.IsSingleImuSteerPortMode())
+            {
+                mf.spSteerModule.PortName = cboxIMU.Text;
+                FormLoop.portNameSteerModule = cboxIMU.Text;
+                lblCurrentSteerModulePort.Text = cboxIMU.Text;
+            }
         }
 
         private void btnOpenSerialSteerModule_Click(object sender, EventArgs e)
         {
             mf.OpenSteerModulePort();
-            if (mf.spSteerModule.IsOpen)
+            if (mf.IsSteerPortOpen())
             {
                 cboxSteerModulePort.Enabled = false;
                 btnCloseSerialSteerModule.Enabled = true;
                 btnOpenSerialSteerModule.Enabled = false;
-                lblCurrentSteerModulePort.Text = mf.spSteerModule.PortName;
+                lblCurrentSteerModulePort.Text = mf.GetSteerPortName();
             }
             else
             {
@@ -458,12 +471,14 @@ namespace AgIO
                 btnCloseSerialSteerModule.Enabled = false;
                 btnOpenSerialSteerModule.Enabled = true;
             }
+
+            ApplyImuSteerPortModeUi();
         }
 
         private void btnCloseSerialSteerModule_Click(object sender, EventArgs e)
         {
             mf.CloseSteerModulePort();
-            if (mf.spSteerModule.IsOpen)
+            if (mf.IsSteerPortOpen())
             {
                 cboxSteerModulePort.Enabled = false;
                 btnCloseSerialSteerModule.Enabled = true;
@@ -475,10 +490,18 @@ namespace AgIO
                 btnCloseSerialSteerModule.Enabled = false;
                 btnOpenSerialSteerModule.Enabled = true;
             }
+
+            ApplyImuSteerPortModeUi();
         }
 
         private void cboxSteerModule_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (mf.IsSingleImuSteerPortMode())
+            {
+                cboxSteerModulePort.Text = cboxIMU.Text;
+                return;
+            }
+
             mf.spSteerModule.PortName = cboxSteerModulePort.Text;
             FormLoop.portNameSteerModule = cboxSteerModulePort.Text;
             lblCurrentSteerModulePort.Text = cboxSteerModulePort.Text;
@@ -494,12 +517,12 @@ namespace AgIO
         private void btnOpenSerialMachineModule_Click(object sender, EventArgs e)
         {
             mf.OpenMachineModulePort();
-            if (mf.spMachineModule.IsOpen)
+            if (mf.IsMachinePortOpen())
             {
                 cboxMachineModulePort.Enabled = false;
                 btnCloseSerialMachineModule.Enabled = true;
                 btnOpenSerialMachineModule.Enabled = false;
-                lblCurrentMachineModulePort.Text = mf.spMachineModule.PortName;
+                lblCurrentMachineModulePort.Text = mf.GetMachinePortName();
             }
             else
             {
@@ -512,7 +535,7 @@ namespace AgIO
         private void btnCloseSerialMachineModule_Click(object sender, EventArgs e)
         {
             mf.CloseMachineModulePort();
-            if (mf.spMachineModule.IsOpen)
+            if (mf.IsMachinePortOpen())
             {
                 cboxMachineModulePort.Enabled = false;
                 btnCloseSerialMachineModule.Enabled = true;
@@ -578,6 +601,33 @@ namespace AgIO
         {
             mf.spRtcm.BaudRate = Convert.ToInt32(cboxRtcmBaud.Text);
             FormLoop.baudRateRtcm = Convert.ToInt32(cboxRtcmBaud.Text);
+        }
+
+        private void ApplyImuSteerPortModeUi()
+        {
+            bool isSingleMode = mf.IsSingleImuSteerPortMode();
+
+            pictureBox1.BackgroundImage = Properties.Resources.Com_IMUModule;
+            pictureBox2.BackgroundImage = isSingleMode ? Properties.Resources.Com_IMUModule : Properties.Resources.Com_AutosteerModule;
+            groupBox3.Text = isSingleMode ? "Steer (shared IMU COM)" : "Steer";
+
+            if (isSingleMode)
+            {
+                cboxSteerModulePort.Enabled = false;
+                btnOpenSerialSteerModule.Enabled = false;
+                btnCloseSerialSteerModule.Enabled = false;
+                lblCurrentSteerModulePort.Text = mf.spIMU.PortName;
+            }
+            else
+            {
+                if (!mf.IsSteerPortOpen())
+                {
+                    cboxSteerModulePort.Enabled = true;
+                }
+                btnOpenSerialSteerModule.Enabled = true;
+                btnCloseSerialSteerModule.Enabled = true;
+                lblCurrentSteerModulePort.Text = mf.GetSteerPortName();
+            }
         }
     } //class
 } //namespace

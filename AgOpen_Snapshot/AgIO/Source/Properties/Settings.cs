@@ -57,6 +57,7 @@ namespace AgIO.Properties
         public string setPort_portNameRtcm = "RTCM";
         public int setPort_baudRateRtcm = 9600;
         public bool setPort_wasRtcmConnected = false;
+        public bool setPort_isSingleImuSteerPort = false;
         public bool setNTRIP_sendToSerial = true;
         public bool setNTRIP_sendToUDP = true;
         public int setNTRIP_packetSize = 256;

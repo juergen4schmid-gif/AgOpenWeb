@@ -216,6 +216,55 @@ namespace AgIO
             SetModulesOnOff();
         }
 
+        private void cboxSingleImuSteerPort_Click(object sender, EventArgs e)
+        {
+            bool isSinglePort = cboxSingleImuSteerPort.Checked;
+            bool wasSteerOpen = IsSteerPortOpen();
+
+            if (isSinglePort && spSteerModule.IsOpen)
+            {
+                CloseSteerModulePort();
+            }
+
+            Properties.Settings.Default.setPort_isSingleImuSteerPort = isSinglePort;
+
+            int moduleBaudRate = isSinglePort ? 921600 : 38400;
+            baudRateIMU = moduleBaudRate;
+            baudRateSteerModule = moduleBaudRate;
+            baudRateMachineModule = moduleBaudRate;
+
+            if (spIMU.IsOpen)
+            {
+                spIMU.BaudRate = moduleBaudRate;
+            }
+
+            if (spSteerModule.IsOpen)
+            {
+                spSteerModule.BaudRate = moduleBaudRate;
+            }
+
+            if (spMachineModule.IsOpen)
+            {
+                spMachineModule.BaudRate = moduleBaudRate;
+            }
+
+            if (isSinglePort)
+            {
+                portNameSteerModule = portNameIMU;
+                spSteerModule.PortName = portNameSteerModule;
+                Properties.Settings.Default.setPort_portNameSteer = portNameSteerModule;
+                wasSteerModuleConnectedLastRun = wasSteerOpen || wasSteerModuleConnectedLastRun;
+            }
+
+            if (!isSinglePort && wasSteerOpen && !spSteerModule.IsOpen)
+            {
+                OpenSteerModulePort();
+            }
+
+            UpdateImuSteerPortModeUi();
+            Properties.Settings.Default.Save();
+        }
+
         #endregion
 
         #region Menu Strip Items

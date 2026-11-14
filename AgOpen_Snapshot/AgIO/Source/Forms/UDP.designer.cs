@@ -72,6 +72,8 @@ namespace AgIO
         // Data stream
         private byte[] buffer = new byte[1024];
 
+        private int lastMachineHydLiftState = int.MinValue;
+
         //used to send communication check pgn= C8 or 200
         private byte[] helloFromAgIO = { 0x80, 0x81, 0x7F, 200, 3, 56, 0, 0, 0x47 };
 
@@ -207,6 +209,7 @@ namespace AgIO
                         }
                     case 0xEF: //239 machine pgn
                         {
+                            TraceMachineHydLiftState(data);
                             SendMachineModulePort(data, data.Length);
                             SendSteerModulePort(data, data.Length);
                             break;
@@ -241,6 +244,17 @@ namespace AgIO
                         }
                 }
             }                            
+        }
+
+        private void TraceMachineHydLiftState(byte[] data)
+        {
+            if (data == null || data.Length < 8 || data[3] != 0xEF) return;
+
+            int machineHydLiftState = data[7];
+            if (machineHydLiftState == lastMachineHydLiftState) return;
+
+            lastMachineHydLiftState = machineHydLiftState;
+            //Trace.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] AGIO machineHydLiftState={machineHydLiftState} pgn=239 b7=0x{data[7]:X2} len={data.Length}");
         }
 
         private void ReceiveDataLoopAsync(IAsyncResult asyncResult)

@@ -93,6 +93,7 @@ namespace AgIO
             this.label11 = new System.Windows.Forms.Label();
             this.btnMinimizeMainForm = new System.Windows.Forms.Button();
             this.btnGPS_Out = new System.Windows.Forms.Button();
+            this.cboxSingleImuSteerPort = new System.Windows.Forms.CheckBox();
             this.cboxIsSteerModule = new System.Windows.Forms.CheckBox();
             this.cboxIsIMUModule = new System.Windows.Forms.CheckBox();
             this.cboxIsMachineModule = new System.Windows.Forms.CheckBox();
@@ -854,6 +855,21 @@ namespace AgIO
             this.btnGPS_Out.UseVisualStyleBackColor = false;
             this.btnGPS_Out.Click += new System.EventHandler(this.btnGPS_Out_Click);
             // 
+            // cboxSingleImuSteerPort
+            // 
+            this.cboxSingleImuSteerPort.Appearance = System.Windows.Forms.Appearance.Button;
+            this.cboxSingleImuSteerPort.BackColor = System.Drawing.Color.Transparent;
+            this.cboxSingleImuSteerPort.BackgroundImage = global::AgIO.Properties.Resources.Com_IMUModule;
+            this.cboxSingleImuSteerPort.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.cboxSingleImuSteerPort.FlatAppearance.BorderSize = 0;
+            this.cboxSingleImuSteerPort.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.cboxSingleImuSteerPort.Location = new System.Drawing.Point(326, 169);
+            this.cboxSingleImuSteerPort.Name = "cboxSingleImuSteerPort";
+            this.cboxSingleImuSteerPort.Size = new System.Drawing.Size(81, 29);
+            this.cboxSingleImuSteerPort.TabIndex = 532;
+            this.cboxSingleImuSteerPort.UseVisualStyleBackColor = false;
+            this.cboxSingleImuSteerPort.Click += new System.EventHandler(this.cboxSingleImuSteerPort_Click);
+            // 
             // cboxIsSteerModule
             // 
             this.cboxIsSteerModule.Appearance = System.Windows.Forms.Appearance.Button;
@@ -1110,6 +1126,7 @@ namespace AgIO
             this.Controls.Add(this.lbl1To8);
             this.Controls.Add(this.label10);
             this.Controls.Add(this.btnStartStopNtrip);
+            this.Controls.Add(this.cboxSingleImuSteerPort);
             this.Controls.Add(this.cboxIsSteerModule);
             this.Controls.Add(this.lblWatch);
             this.Controls.Add(this.cboxIsIMUModule);
@@ -1217,6 +1234,7 @@ namespace AgIO
         private System.Windows.Forms.CheckBox cboxIsMachineModule;
         private System.Windows.Forms.CheckBox cboxIsIMUModule;
         private System.Windows.Forms.CheckBox cboxIsSteerModule;
+        private System.Windows.Forms.CheckBox cboxSingleImuSteerPort;
         private System.Windows.Forms.Label lbl1To8;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.Label lbl9To16;

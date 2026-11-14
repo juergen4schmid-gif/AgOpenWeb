@@ -160,10 +160,16 @@ namespace AgIO
             //same for SteerModule port
             portNameSteerModule = Settings.Default.setPort_portNameSteer;
             wasSteerModuleConnectedLastRun = Settings.Default.setPort_wasSteerModuleConnected;
+            if (IsSingleImuSteerPortMode())
+            {
+                portNameSteerModule = portNameIMU;
+                spSteerModule.PortName = portNameSteerModule;
+            }
+
             if (wasSteerModuleConnectedLastRun)
             {
                 OpenSteerModulePort();
-                if (spSteerModule.IsOpen) lblMod1Comm.Text = portNameSteerModule;
+                if (IsSteerPortOpen()) lblMod1Comm.Text = GetSteerPortName();
             }
 
             //same for MachineModule port
@@ -172,7 +178,7 @@ namespace AgIO
             if (wasMachineModuleConnectedLastRun)
             {
                 OpenMachineModulePort();
-                if (spMachineModule.IsOpen) lblMod2Comm.Text = portNameMachineModule;
+                if (IsMachinePortOpen()) lblMod2Comm.Text = GetMachinePortName();
             }
 
             ConfigureNTRIP();
@@ -194,9 +200,11 @@ namespace AgIO
             isConnectedIMU = cboxIsIMUModule.Checked = Properties.Settings.Default.setMod_isIMUConnected;
             isConnectedSteer = cboxIsSteerModule.Checked = Properties.Settings.Default.setMod_isSteerConnected;
             isConnectedMachine = cboxIsMachineModule.Checked = Properties.Settings.Default.setMod_isMachineConnected;
+            cboxSingleImuSteerPort.Checked = Properties.Settings.Default.setPort_isSingleImuSteerPort;
 
             //On or off the module rows
             SetModulesOnOff();
+            UpdateImuSteerPortModeUi();
 
             oneSecondLoopTimer.Enabled = true;
             pictureBox1.Visible = true;
@@ -553,7 +561,7 @@ namespace AgIO
 
                 if (wasSteerModuleConnectedLastRun)
                 {
-                    if (!spSteerModule.IsOpen)
+                    if (!IsSteerPortOpen())
                     {
                         wasSteerModuleConnectedLastRun = false;
                         lblMod1Comm.Text = "";
@@ -562,7 +570,7 @@ namespace AgIO
 
                 if (wasMachineModuleConnectedLastRun)
                 {
-                    if (!spMachineModule.IsOpen)
+                    if (!IsMachinePortOpen())
                     {
                         wasMachineModuleConnectedLastRun = false;
                         lblMod2Comm.Text = "";
@@ -718,6 +726,8 @@ namespace AgIO
                 cboxIsSteerModule.BackgroundImage = Properties.Resources.AddNew;
             }
 
+            UpdateImuSteerPortModeUi();
+
             if (cboxIsIMUModule.Checked != Properties.Settings.Default.setMod_isIMUConnected ||
                 cboxIsSteerModule.Checked != Properties.Settings.Default.setMod_isSteerConnected ||
                 cboxIsMachineModule.Checked != Properties.Settings.Default.setMod_isMachineConnected)
@@ -729,6 +739,41 @@ namespace AgIO
 
                 Properties.Settings.Default.Save();
             }
+        }
+
+        public bool IsSingleImuSteerPortMode()
+        {
+            return Properties.Settings.Default.setPort_isSingleImuSteerPort;
+        }
+
+        public bool IsSteerPortOpen()
+        {
+            return IsSingleImuSteerPortMode() ? spIMU.IsOpen : spSteerModule.IsOpen;
+        }
+
+        public string GetSteerPortName()
+        {
+            return IsSingleImuSteerPortMode() ? spIMU.PortName : spSteerModule.PortName;
+        }
+
+        public bool IsMachinePortOpen()
+        {
+            return IsSingleImuSteerPortMode() ? spIMU.IsOpen : spMachineModule.IsOpen;
+        }
+
+        public string GetMachinePortName()
+        {
+            return IsSingleImuSteerPortMode() ? spIMU.PortName : spMachineModule.PortName;
+        }
+
+        public void UpdateImuSteerPortModeUi()
+        {
+            bool isSingleMode = IsSingleImuSteerPortMode();
+            cboxSingleImuSteerPort.Checked = isSingleMode;
+            cboxSingleImuSteerPort.BackgroundImage = isSingleMode ? Properties.Resources.Cancel64 : Properties.Resources.AddNew;
+
+            btnIMU.BackgroundImage = Properties.Resources.B_IMU;
+            btnSteer.BackgroundImage = isSingleMode ? Properties.Resources.B_IMU : Properties.Resources.B_Autosteer;
         }
 
         private void DoTraffic()

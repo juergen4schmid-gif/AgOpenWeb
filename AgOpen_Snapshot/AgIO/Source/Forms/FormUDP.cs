@@ -109,6 +109,9 @@ namespace AgIO
 
                 if (mf.btnIMU.BackColor == Color.LimeGreen) lblBtnIMU.BackColor = Color.LimeGreen;
                 else lblBtnIMU.BackColor = Color.Red;
+
+                label18.Text = mf.IsSingleImuSteerPortMode() ? "IMU/Steer" : "IMU";
+                label15.Text = mf.IsSingleImuSteerPortMode() ? "Steer (shared)" : "Steer";
             }
 
             if (tickCounter > 5)
