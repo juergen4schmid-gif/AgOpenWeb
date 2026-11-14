@@ -29,13 +29,20 @@ namespace AgOpenGPS.Core.ViewModels
         public void Execute(object parameter)
         {
             _execute();
+#if !NETFRAMEWORK
+            CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+#endif
         }
 
+#if NETFRAMEWORK
         public event EventHandler CanExecuteChanged
         {
             add => CommandManager.RequerySuggested += value;
             remove => CommandManager.RequerySuggested -= value;
         }
+#else
+        public event EventHandler? CanExecuteChanged;
+#endif
     }
 
     public class RelayCommand<T> : ICommand
@@ -62,15 +69,22 @@ namespace AgOpenGPS.Core.ViewModels
             return _canExecute == null || _canExecute((T)parameter);
         }
 
+#if NETFRAMEWORK
         public event EventHandler CanExecuteChanged
         {
             add { CommandManager.RequerySuggested += value; }
             remove { CommandManager.RequerySuggested -= value; }
         }
+#else
+        public event EventHandler? CanExecuteChanged;
+#endif
 
         public void Execute(object parameter)
         {
             _execute((T)parameter);
+#if !NETFRAMEWORK
+            CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+#endif
         }
     }
 }
